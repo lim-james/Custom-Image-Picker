@@ -41,7 +41,7 @@ class ImageCollectionViewCell: UICollectionViewCell {
                 bubblify(indexLabel, enabled: false)
             } else {
                 // if yes, set text of index label to be the index assigned
-                indexLabel.text = "\(index!)"
+                indexLabel.text = "\(index! + 1)"
                 // bubblify label and set its enabled state to true
                 bubblify(indexLabel, enabled: true)
             }
