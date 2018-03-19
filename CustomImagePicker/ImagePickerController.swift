@@ -61,11 +61,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // stores the index path of the selected album
     var currentAlbumIndexPath: IndexPath = .init(row: 0, section: 0) {
-        // when set set current album accordingly
-        // and set current cell to start
         didSet {
+            // when did set current album accordingly
             currentAlbum = albums[currentAlbumIndexPath.row]
-            currentCell = IndexPath(row: 0, section: 0)
+            // and set current image to first image
+            currentImage = photos.first
         }
     }
     
@@ -75,12 +75,12 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     }
     
     var selectingMultiple = false // indicates whether use can select multiple images
-    var selectedCells: [IndexPath] = [.init(row: 0, section: 0)] // stores cells that have been selected
+    var selectedImages: [UIImage] = [] // stores cells that have been selected
     // stores the current cell user is on
-    var currentCell: IndexPath! {
+    var currentImage: UIImage! {
         // when set refresh preview view
         didSet {
-            previewView.image = photos[currentCell.row]
+            previewView.image = currentImage
         }
     }
     
@@ -172,8 +172,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
-            // set selected cell to the first item
-            self.currentCell = IndexPath(row: 0, section: 0)
+            // set selected image to the first item
+            self.currentImage = self.photos.first
             // refresh view
             self.collectionView.reloadData()
         }
@@ -209,17 +209,17 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // checking if user disabled selecting multiple
         if !selectingMultiple {
             // if yes, check if there are selected cells
-            if selectedCells.isEmpty {
+            if selectedImages.isEmpty {
                 // if no set select cells to current cell
-                selectedCells = [currentCell]
+                selectedImages = [currentImage]
             } else {
                 // if yes remove all except the first item
                 // store the first selected cell
-                let first = selectedCells.first!
+                let first = selectedImages.first!
                 // remove all selected cells remove list
-                selectedCells.removeAll()
+                selectedImages.removeAll()
                 // adding back the first selected cell
-                selectedCells.append(first)
+                selectedImages.append(first)
             }
         }
         // refresh view
@@ -246,9 +246,10 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Image", for: indexPath) as! ImageCollectionViewCell
         // check if current cell was selected
-        if selectedCells.contains(indexPath) {
+        let photo = photos[indexPath.row]
+        if selectedImages.contains(photos[indexPath.row]) {
             // if yes set index of cell to be index of cells index path in the selected cell list
-            cell.index =  selectedCells.index(of: indexPath)
+            cell.index = selectedImages.index(of: photo)
         } else {
             // else set cell index to -1 (explained in image collection view cell file)
             cell.index = -1
@@ -257,7 +258,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         cell.indexLabel.isHidden = !selectingMultiple
         
         // check if current cell was the cell user is currently selecting
-        if indexPath == currentCell {
+        if photo == currentImage {
             // if yes, highlight cell
             cell.alpha = 0.7
         }
@@ -269,35 +270,36 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // handles event when cell is selected
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // store indexPath of selected index path
-        var selectedCell = indexPath
+        // store image at selected index path
+        var selectedImage = photos[indexPath.row]
         
         // check if the user enabled multiple selection to adjust action accordingly
         if selectingMultiple {
-            // check if this cell was previously selected
-            if selectedCells.contains(selectedCell) {
-                // if yes, check if this cell is already selected
+            // check if this image was previously selected
+            if selectedImages.contains(selectedImage) {
+                // if yes, check if this image is already selected
                 // because user tap once to preview and taps a second time to deselect
-                if currentCell == selectedCell {
-                    // if yes too, remove selected index path from seleected list
-                    selectedCells.remove(at: selectedCells.index(of: selectedCell)!)
-                    // check if there're other still other cells
-                    if selectedCells.count > 0 {
-                        // if yes, change selected cell to the last cell of list
-                        selectedCell = selectedCells.last!
+                if currentImage == selectedImage {
+                    // if yes too, remove selected image from seleected list
+                    selectedImages.remove(at: selectedImages.index(of: selectedImage)!)
+                    // needs to be fixed
+                    // check if there're other still other images
+                    if selectedImages.count > 0 {
+                        // if yes, change selected image to the last image of list
+                        selectedImage = selectedImages.last!
                     }
                 }
             } else {
-                // if no, add selected index path to seleected list
-                selectedCells.append(selectedCell)
+                // if no, add selected image to seleected list
+                selectedImages.append(selectedImage)
             }
         } else {
-            // set current selected index path to selected list
-            selectedCells = [selectedCell]
+            // set current selected image to selected list
+            selectedImages = [selectedImage]
         }
         
-        // set the current cell the user is on to select cell index path
-        currentCell = selectedCell
+        // set the current image the user is on to select image index path
+        currentImage = selectedImage
         
         // refresh view
         collectionView.reloadData()
