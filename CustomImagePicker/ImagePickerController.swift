@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 class ImagePickerController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -43,9 +44,17 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     // stores the index path of the selected album
     var currentAlbum: IndexPath = .init(row: 0, section: 0)
     
+    var images: [UIImage] = []
+    
     var selectingMultiple = false // indicates whether use can select multiple images
     var selectedCells: [IndexPath] = [.init(row: 0, section: 0)] // stores cells that have been selected
-    var currentCell: IndexPath = .init(row: 0, section: 0) // stores the current cell user is on
+    // stores the current cell user is on
+    var currentCell: IndexPath! {
+        // when set refresh preview view
+        didSet {
+            previewView.image = images[currentCell.row]
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +62,58 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        // setting up preview view
         previewView.backgroundColor = .black // placeholder
+        previewView.contentMode = .scaleAspectFill
+        
+        fetchPhotos()
+    }
+    
+    // fetch photos from user's library
+    func fetchPhotos() {
+        // request access to photos
+        PHPhotoLibrary.requestAuthorization { (status) in
+            // check status of reguest
+            switch status {
+            case .authorized:
+                // if authorized, start fetching
+                let fetchOptions = PHFetchOptions()
+                // fetch all images as photo assets
+                let allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+                // loop through all photos and add them to images array
+                for i in 0..<allPhotos.count {
+                    // before appending turn photo assets into uiimage
+                    self.images.append(self.getUIImage(from: allPhotos[i]))
+                }
+                // collection view can only be reloaded on main thread
+                DispatchQueue.main.async {
+                    // set selected cell to the first item
+                    self.currentCell = IndexPath(row: 0, section: 0)
+                    // refresh view
+                    self.collectionView.reloadData()
+                }
+            case .denied, .restricted:
+                print("Not allowed")
+            case .notDetermined:
+                print("Not determined yet")
+            }
+        }
+    }
+    
+    // convert photo asset to uiimage
+    func getUIImage(from asset: PHAsset) -> UIImage {
+        var img: UIImage?
+        let manager = PHImageManager.default()
+        let options = PHImageRequestOptions()
+        options.version = .original
+        options.isSynchronous = true
+        manager.requestImageData(for: asset, options: options) { data, _, _, _ in
+            
+            if let data = data {
+                img = UIImage(data: data)
+            }
+        }
+        return img!
     }
     
     // closes this controller
@@ -70,13 +130,19 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         selectingMultiple = !selectingMultiple
         // checking if user disabled selecting multiple
         if !selectingMultiple {
-            // if yes remove all except the first item
-            // store the first selected cell
-            let first = selectedCells.first!
-            // remove all selected cells remove list
-            selectedCells.removeAll()
-            // adding back the first selected cell
-            selectedCells.append(first)
+            // if yes, check if there are selected cells
+            if selectedCells.isEmpty {
+                // if no set select cells to current cell
+                selectedCells = [currentCell]
+            } else {
+                // if yes remove all except the first item
+                // store the first selected cell
+                let first = selectedCells.first!
+                // remove all selected cells remove list
+                selectedCells.removeAll()
+                // adding back the first selected cell
+                selectedCells.append(first)
+            }
         }
         // refresh view
         collectionView.reloadData()
@@ -92,7 +158,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10 // placeholder
+        return images.count
     }
     
     // setting up main image picker
@@ -114,6 +180,9 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
             // if yes, highlight cell
             cell.alpha = 0.8
         }
+        
+        // assign image at for this cell to image view
+        cell.imageView.image = images[indexPath.row]
         return cell
     }
     
@@ -131,8 +200,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 if currentCell == selectedCell {
                     // if yes too, remove selected index path from seleected list
                     selectedCells.remove(at: selectedCells.index(of: selectedCell)!)
-                    // change selected cell to the last cell of list
-                    selectedCell = selectedCells.last!
+                    // check if there're other still other cells
+                    if selectedCells.count > 0 {
+                        // if yes, change selected cell to the last cell of list
+                        selectedCell = selectedCells.last!
+                    }
                 }
             } else {
                 // if no, add selected index path to seleected list

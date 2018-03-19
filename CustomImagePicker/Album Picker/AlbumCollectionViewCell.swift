@@ -20,5 +20,7 @@ class AlbumCollectionViewCell: UICollectionViewCell {
         // making image view a rounded rectangle
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true
+        // setting content mode
+        imageView.contentMode = .scaleAspectFill
     }
 }
