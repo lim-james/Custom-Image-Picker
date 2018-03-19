@@ -51,6 +51,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // stores the current selected album
     var currentAlbum: PHCollection! {
+        // when set refresh collecitonview
         didSet {
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
@@ -60,6 +61,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // stores the index path of the selected album
     var currentAlbumIndexPath: IndexPath = .init(row: 0, section: 0) {
+        // when set set current album accordingly
+        // and set current cell to start
         didSet {
             currentAlbum = albums[currentAlbumIndexPath.row]
             currentCell = IndexPath(row: 0, section: 0)
