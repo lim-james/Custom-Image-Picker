@@ -20,9 +20,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // to hold spacing
         var spacing: CGFloat!
         for i in 0...3 {
-            // if spacing 
+            // to test if width - i is a multiple of 4
             if (view.frame.width - CGFloat(i)).truncatingRemainder(dividingBy: 4) == 0 {
+                // if yes assign it to spacing
                 spacing = CGFloat(i)
+                // end because this is the only option
                 break
             }
         }
@@ -42,13 +44,16 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     var currentAlbum: IndexPath = .init(row: 0, section: 0)
     
     var selectingMultiple = false // indicates whether use can select multiple images
-    var selectedCells: [IndexPath] = [] // stores cells that have been selected
+    var selectedCells: [IndexPath] = [.init(row: 0, section: 0)] // stores cells that have been selected
+    var currentCell: IndexPath = .init(row: 0, section: 0) // stores the current cell user is on
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // setting up collection view
         collectionView.delegate = self
         collectionView.dataSource = self
+        
+        previewView.backgroundColor = .black // placeholder
     }
     
     // closes this controller
@@ -103,31 +108,44 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // hide label is not selecting multiple and show if user is selecting multiple
         cell.indexLabel.isHidden = !selectingMultiple
+        
+        // check if current cell was the cell user is currently selecting
+        if indexPath == currentCell {
+            // if yes, highlight cell
+            cell.alpha = 0.8
+        }
         return cell
     }
     
     // handles event when cell is selected
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // store indexPath of selected index path
+        var selectedCell = indexPath
+        
         // check if the user enabled multiple selection to adjust action accordingly
         if selectingMultiple {
             // check if this cell was previously selected
-            if selectedCells.contains(indexPath) {
-                // if yes, remove selected index path from seleected list
-                selectedCells.remove(at: selectedCells.index(of: indexPath)!)
+            if selectedCells.contains(selectedCell) {
+                // if yes, check if this cell is already selected
+                // because user tap once to preview and taps a second time to deselect
+                if currentCell == selectedCell {
+                    // if yes too, remove selected index path from seleected list
+                    selectedCells.remove(at: selectedCells.index(of: selectedCell)!)
+                    // change selected cell to the last cell of list
+                    selectedCell = selectedCells.last!
+                }
             } else {
                 // if no, add selected index path to seleected list
-                selectedCells.append(indexPath)
+                selectedCells.append(selectedCell)
             }
         } else {
-            // check if this cell was previously selected
-            if selectedCells.contains(indexPath) {
-                // if yes, remove selected index path from seleected list
-                selectedCells = []
-            } else {
-                // if no, set current selected index path to selected list
-                selectedCells = [indexPath]
-            }
+            // set current selected index path to selected list
+            selectedCells = [selectedCell]
         }
+        
+        // set the current cell the user is on to select cell index path
+        currentCell = selectedCell
+        
         // refresh view
         collectionView.reloadData()
     }
@@ -135,5 +153,14 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     // dynamically change cell size based on device size
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: (width - cellSpacing)/4, height: (width - cellSpacing)/4)
+    }
+    
+    // dynamically change cell spacing based on device size
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return cellSpacing/3 // divided by 3 since there're 3 spaces
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return cellSpacing/3 // just to keep things equally spaced
     }
 }
