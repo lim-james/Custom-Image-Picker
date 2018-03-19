@@ -27,6 +27,8 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
         // setting up collection view
         albumCollectionView.delegate = self
         albumCollectionView.dataSource = self
+        // provide padding on the left
+        albumCollectionView.contentInset.left = 20
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

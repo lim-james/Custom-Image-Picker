@@ -95,7 +95,7 @@
                                                                 </constraints>
                                                             </imageView>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pJa-MG-tkX">
-                                                                <rect key="frame" x="0.0" y="100" width="100" height="21"/>
+                                                                <rect key="frame" x="0.0" y="108" width="100" height="21"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -105,7 +105,7 @@
                                                     <constraints>
                                                         <constraint firstItem="pJa-MG-tkX" firstAttribute="leading" secondItem="CiN-yu-Ff0" secondAttribute="leading" id="0If-Rw-kvi"/>
                                                         <constraint firstItem="Veu-5L-bUN" firstAttribute="leading" secondItem="CiN-yu-Ff0" secondAttribute="leading" id="7z1-cO-xxO"/>
-                                                        <constraint firstItem="pJa-MG-tkX" firstAttribute="top" secondItem="Veu-5L-bUN" secondAttribute="bottom" id="LQp-N4-bTj"/>
+                                                        <constraint firstItem="pJa-MG-tkX" firstAttribute="top" secondItem="Veu-5L-bUN" secondAttribute="bottom" constant="8" id="LQp-N4-bTj"/>
                                                         <constraint firstAttribute="trailing" secondItem="Veu-5L-bUN" secondAttribute="trailing" id="dLr-wj-MM0"/>
                                                         <constraint firstAttribute="trailing" secondItem="pJa-MG-tkX" secondAttribute="trailing" id="fdQ-oK-pAs"/>
                                                         <constraint firstItem="Veu-5L-bUN" firstAttribute="top" secondItem="CiN-yu-Ff0" secondAttribute="top" id="ysH-UL-8Dr"/>
