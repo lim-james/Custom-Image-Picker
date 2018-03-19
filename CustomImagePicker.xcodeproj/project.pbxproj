@@ -8,20 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		742F99DF205F5B460074F73C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99DE205F5B460074F73C /* AppDelegate.swift */; };
-		742F99E1205F5B460074F73C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99E0205F5B460074F73C /* ViewController.swift */; };
+		742F99E1205F5B460074F73C /* ImagePickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99E0205F5B460074F73C /* ImagePickerController.swift */; };
 		742F99E4205F5B460074F73C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 742F99E2205F5B460074F73C /* Main.storyboard */; };
 		742F99E6205F5B460074F73C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 742F99E5205F5B460074F73C /* Assets.xcassets */; };
 		742F99E9205F5B460074F73C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 742F99E7205F5B460074F73C /* LaunchScreen.storyboard */; };
+		742F99F1205F611F0074F73C /* AlbumPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F0205F611F0074F73C /* AlbumPickerView.swift */; };
+		742F99F3205F62A80074F73C /* AlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F2205F62A80074F73C /* AlbumCollectionViewCell.swift */; };
+		742F99F5205F658A0074F73C /* ImagePickerProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */; };
+		742F99F7205F661F0074F73C /* CurrentAlbumHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F6205F661F0074F73C /* CurrentAlbumHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		742F99DB205F5B460074F73C /* CustomImagePicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomImagePicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		742F99DE205F5B460074F73C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		742F99E0205F5B460074F73C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		742F99E0205F5B460074F73C /* ImagePickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerController.swift; sourceTree = "<group>"; };
 		742F99E3205F5B460074F73C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		742F99E5205F5B460074F73C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		742F99E8205F5B460074F73C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		742F99EA205F5B460074F73C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		742F99F0205F611F0074F73C /* AlbumPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumPickerView.swift; sourceTree = "<group>"; };
+		742F99F2205F62A80074F73C /* AlbumCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCollectionViewCell.swift; sourceTree = "<group>"; };
+		742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerProtocols.swift; sourceTree = "<group>"; };
+		742F99F6205F661F0074F73C /* CurrentAlbumHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentAlbumHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,7 +63,11 @@
 			isa = PBXGroup;
 			children = (
 				742F99DE205F5B460074F73C /* AppDelegate.swift */,
-				742F99E0205F5B460074F73C /* ViewController.swift */,
+				742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */,
+				742F99E0205F5B460074F73C /* ImagePickerController.swift */,
+				742F99F6205F661F0074F73C /* CurrentAlbumHelper.swift */,
+				742F99F0205F611F0074F73C /* AlbumPickerView.swift */,
+				742F99F2205F62A80074F73C /* AlbumCollectionViewCell.swift */,
 				742F99E2205F5B460074F73C /* Main.storyboard */,
 				742F99E5205F5B460074F73C /* Assets.xcassets */,
 				742F99E7205F5B460074F73C /* LaunchScreen.storyboard */,
@@ -136,7 +148,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				742F99E1205F5B460074F73C /* ViewController.swift in Sources */,
+				742F99F3205F62A80074F73C /* AlbumCollectionViewCell.swift in Sources */,
+				742F99F7205F661F0074F73C /* CurrentAlbumHelper.swift in Sources */,
+				742F99E1205F5B460074F73C /* ImagePickerController.swift in Sources */,
+				742F99F1205F611F0074F73C /* AlbumPickerView.swift in Sources */,
+				742F99F5205F658A0074F73C /* ImagePickerProtocols.swift in Sources */,
 				742F99DF205F5B460074F73C /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
