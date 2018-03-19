@@ -8,7 +8,26 @@
 
 import UIKit
 
-class ImagePickerController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class ImagePickerController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    // getting view width
+    var width: CGFloat! {
+        return view.frame.width
+    }
+    
+    // get dynamic spacing between cells
+    var cellSpacing: CGFloat! {
+        // to hold spacing
+        var spacing: CGFloat!
+        for i in 0...3 {
+            // if spacing 
+            if (view.frame.width - CGFloat(i)).truncatingRemainder(dividingBy: 4) == 0 {
+                spacing = CGFloat(i)
+                break
+            }
+        }
+        return spacing
+    }
     
     // declaration of variables
     
@@ -111,5 +130,10 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // refresh view
         collectionView.reloadData()
+    }
+    
+    // dynamically change cell size based on device size
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: (width - cellSpacing)/4, height: (width - cellSpacing)/4)
     }
 }
