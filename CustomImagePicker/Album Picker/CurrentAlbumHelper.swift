@@ -11,12 +11,12 @@ import UIKit
 // encapsulating Current Album Delegate methods
 extension ImagePickerController: CurrentAlbumDelegate {
     // set current album to arguments passed through
-    func setCurrent(album: IndexPath) {
-        currentAlbum = album
+    func setCurrent(indexPath: IndexPath) {
+        currentAlbumIndexPath = indexPath
     }
     
     // return value of current album
     func getCurrent() -> IndexPath {
-        return currentAlbum
+        return currentAlbumIndexPath
     }
 }

@@ -41,10 +41,35 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     @IBOutlet weak var previewView: UIImageView!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    // stores the index path of the selected album
-    var currentAlbum: IndexPath = .init(row: 0, section: 0)
+    // store gallery from device
+    var gallery: [PHCollection: [UIImage]] = [:]
     
-    var images: [UIImage] = []
+    // gets only albums from gallery
+    var albums: [PHCollection] {
+        return Array(gallery.keys)
+    }
+    
+    // stores the current selected album
+    var currentAlbum: PHCollection! {
+        didSet {
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+        }
+    }
+    
+    // stores the index path of the selected album
+    var currentAlbumIndexPath: IndexPath = .init(row: 0, section: 0) {
+        didSet {
+            currentAlbum = albums[currentAlbumIndexPath.row]
+            currentCell = IndexPath(row: 0, section: 0)
+        }
+    }
+    
+    // gets only photos from the current album
+    var photos: [UIImage] {
+        return gallery[currentAlbum]!
+    }
     
     var selectingMultiple = false // indicates whether use can select multiple images
     var selectedCells: [IndexPath] = [.init(row: 0, section: 0)] // stores cells that have been selected
@@ -52,7 +77,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     var currentCell: IndexPath! {
         // when set refresh preview view
         didSet {
-            previewView.image = images[currentCell.row]
+            previewView.image = photos[currentCell.row]
         }
     }
     
@@ -66,11 +91,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         previewView.backgroundColor = .black // placeholder
         previewView.contentMode = .scaleAspectFill
         
-        fetchPhotos()
+        fetchSmartAlbums()
     }
     
-    // fetch photos from user's library
-    func fetchPhotos() {
+    // fetch smart albums from user's library
+    func fetchSmartAlbums() {
         // request access to photos
         PHPhotoLibrary.requestAuthorization { (status) in
             // check status of reguest
@@ -78,20 +103,26 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
             case .authorized:
                 // if authorized, start fetching
                 let fetchOptions = PHFetchOptions()
-                // fetch all images as photo assets
-                let allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-                // loop through all photos and add them to images array
-                for i in 0..<allPhotos.count {
-                    // before appending turn photo assets into uiimage
-                    self.images.append(self.getUIImage(from: allPhotos[i]))
+                // fetch all smart albums
+                let allSmartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: fetchOptions)
+                // assign current album to first album fetched
+                self.currentAlbum = allSmartAlbums.firstObject
+                // loop through all smart albums and add them to smart albums array
+                for i in 0..<allSmartAlbums.count {
+                    // check if collection is empty
+                    if allSmartAlbums[i].estimatedAssetCount != 0 {
+                        // if not empty, create key for albums dictionary
+                        self.gallery[allSmartAlbums[i]] = []
+                        // fetch photo for this album
+                        self.fetchPhotos(from: allSmartAlbums[i])
+                    }
                 }
                 // collection view can only be reloaded on main thread
                 DispatchQueue.main.async {
-                    // set selected cell to the first item
-                    self.currentCell = IndexPath(row: 0, section: 0)
                     // refresh view
                     self.collectionView.reloadData()
                 }
+                self.fetchAlbums()
             case .denied, .restricted:
                 print("Not allowed")
             case .notDetermined:
@@ -100,20 +131,64 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
     }
     
+    // fetch albums from user's library
+    func fetchAlbums() {
+        let fetchOptions = PHFetchOptions()
+        // fetch all albums
+        let allAlbums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+        // loop through all albums and add them to albums array
+        for i in 0..<allAlbums.count {
+            // check if collection is empty
+            if allAlbums[i].estimatedAssetCount != 0 {
+                // if not empty, create key for albums dictionary
+                gallery[allAlbums[i]] = []
+                // fetch photo for this album
+                fetchPhotos(from: allAlbums[i])
+            }
+        }
+        // collection view can only be reloaded on main thread
+        DispatchQueue.main.async {
+            // refresh view
+            self.collectionView.reloadData()
+        }
+    }
+    
+    // fetch photos from user's library
+    func fetchPhotos(from collection: PHAssetCollection) {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.fetchLimit = 50
+        // fetch all images as photo assets
+        let allAssets = PHAsset.fetchAssets(in: collection, options: fetchOptions)
+        // loop through all assets and add them to images array
+        for i in 0..<allAssets.count {
+            // before appending to array, safely convert asset to image
+            if let image = getUIImage(from: allAssets[i]) {
+                // append it to array under collection in albums dictionary
+                gallery[collection]!.append(image)
+            }
+        }
+        // collection view can only be reloaded on main thread
+        DispatchQueue.main.async {
+            // set selected cell to the first item
+            self.currentCell = IndexPath(row: 0, section: 0)
+            // refresh view
+            self.collectionView.reloadData()
+        }
+    }
+    
     // convert photo asset to uiimage
-    func getUIImage(from asset: PHAsset) -> UIImage {
+    func getUIImage(from asset: PHAsset) -> UIImage? {
         var img: UIImage?
         let manager = PHImageManager.default()
         let options = PHImageRequestOptions()
         options.version = .original
         options.isSynchronous = true
         manager.requestImageData(for: asset, options: options) { data, _, _, _ in
-            
             if let data = data {
                 img = UIImage(data: data)
             }
         }
-        return img!
+        return img
     }
     
     // closes this controller
@@ -153,12 +228,15 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Header", for: indexPath) as! AlbumPickerView
         // passing delegate methods to album picker view
         view.currentAlbumDelegate = self
-        view.albums = 7 // placeholder
+        view.albums = albums
         return view
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count
+        // check if albums have been added.
+        // if no albums present, return 0
+        // else return number of images.
+        return albums.count == 0 ? 0 : photos.count
     }
     
     // setting up main image picker
@@ -178,11 +256,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // check if current cell was the cell user is currently selecting
         if indexPath == currentCell {
             // if yes, highlight cell
-            cell.alpha = 0.8
+            cell.alpha = 0.7
         }
         
         // assign image at for this cell to image view
-        cell.imageView.image = images[indexPath.row]
+        cell.imageView.image = photos[indexPath.row]
         return cell
     }
     

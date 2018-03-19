@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICollectionViewDataSource {
     
@@ -17,7 +18,13 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
     var selectedAlbum: IndexPath! {
         return currentAlbumDelegate.getCurrent()
     }
-    var albums: Int! // placeholder
+    
+    // to store all albums
+    var albums: [PHCollection] = [] {
+        didSet {
+            albumCollectionView.reloadData()
+        }
+    }
     
     // collection view to display categories
     @IBOutlet weak var albumCollectionView: UICollectionView!
@@ -32,21 +39,22 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return albums // placeholder
+        return albums.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = albumCollectionView.dequeueReusableCell(withReuseIdentifier: "Album", for: indexPath)
+        let cell = albumCollectionView.dequeueReusableCell(withReuseIdentifier: "Album", for: indexPath) as! AlbumCollectionViewCell
         // check if current cell was selected and assigns an alpha value to the cell.
         // 1 for selected   0.5 for not selected
         cell.alpha = indexPath == currentAlbumDelegate.getCurrent() ? 1 : 0.5
+        cell.album = albums[indexPath.row]
         return cell
     }
     
     // handle events when selected
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // set the index path of selected album to that of the selected cell
-        currentAlbumDelegate.setCurrent(album: indexPath)
+        currentAlbumDelegate.setCurrent(indexPath: indexPath)
         // refresh the collection view
         collectionView.reloadData()
     }

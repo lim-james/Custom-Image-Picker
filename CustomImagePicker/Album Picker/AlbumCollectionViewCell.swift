@@ -8,10 +8,17 @@
 //
 
 import UIKit
+import Photos
 
 class AlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var label: UILabel!
+    
+    var album: PHCollection! {
+        didSet {
+            label.text = album.localizedTitle
+        }
+    }
     
     // initial set up
     override func awakeFromNib() {
