@@ -145,7 +145,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                     // refresh view
                     self.collectionView.reloadData()
                 }
-                self.fetchAlbums()
+//                self.fetchAlbums() left out for now
             case .denied, .restricted:
                 print("Not allowed")
             case .notDetermined:
@@ -185,10 +185,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         let allAssets = PHAsset.fetchAssets(in: collection, options: fetchOptions)
         // loop through all assets and add them to images array
         for i in 0..<allAssets.count {
-            autoreleasepool {
-                // append it to array under collection in albums dictionary
-                gallery[collection]!.append(allAssets[i])
-            }
+            // append it to array under collection in albums dictionary
+            gallery[collection]!.append(allAssets[i])
         }
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
