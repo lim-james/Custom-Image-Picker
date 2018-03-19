@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 // encapsulating Current Album Delegate methods
 extension ImagePickerController: CurrentAlbumDelegate {
@@ -18,5 +19,13 @@ extension ImagePickerController: CurrentAlbumDelegate {
     // return value of current album
     func getCurrent() -> IndexPath {
         return currentAlbumIndexPath
+    }
+    
+    // return first image of album
+    func getThumbnail(of album: PHCollection) -> UIImage {
+        // trying to safely extract first image if present
+        // if album is empty return empty image
+        // else return first image
+        return (gallery[album]?.isEmpty)! ? UIImage() : gallery[album]!.first!
     }
 }

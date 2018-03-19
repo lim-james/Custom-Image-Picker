@@ -47,7 +47,10 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
         // check if current cell was selected and assigns an alpha value to the cell.
         // 1 for selected   0.5 for not selected
         cell.alpha = indexPath == currentAlbumDelegate.getCurrent() ? 1 : 0.5
+        // setting album of cell
         cell.album = albums[indexPath.row]
+        // giving cell a thumbnail image
+        cell.imageView.image = currentAlbumDelegate.getThumbnail(of: albums[indexPath.row])
         return cell
     }
     

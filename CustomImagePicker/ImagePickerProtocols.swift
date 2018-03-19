@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 // allow Album Picker View to communicate with Image Picker View
 protocol CurrentAlbumDelegate {
@@ -14,4 +15,6 @@ protocol CurrentAlbumDelegate {
     func setCurrent(indexPath: IndexPath)
     // getting the current album
     func getCurrent() -> IndexPath
+    // getting thumbnail of specific album
+    func getThumbnail(of album: PHCollection) -> UIImage
 }

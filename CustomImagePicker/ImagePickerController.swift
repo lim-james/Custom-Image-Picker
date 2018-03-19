@@ -282,11 +282,14 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 if currentImage == selectedImage {
                     // if yes too, remove selected image from seleected list
                     selectedImages.remove(at: selectedImages.index(of: selectedImage)!)
-                    // needs to be fixed
-                    // check if there're other still other images
-                    if selectedImages.count > 0 {
-                        // if yes, change selected image to the last image of list
-                        selectedImage = selectedImages.last!
+                    // go through selected images array
+                    for image in selectedImages {
+                        // check if current image is in the same album
+                        if photos.contains(image) {
+                            // if yes, change selected image to this image
+                            // else stick don't change
+                            selectedImage = image
+                        }
                     }
                 }
             } else {
