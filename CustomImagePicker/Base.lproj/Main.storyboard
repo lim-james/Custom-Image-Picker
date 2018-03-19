@@ -35,7 +35,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Image" id="uYi-W7-TIj">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Image" id="uYi-W7-TIj" customClass="ImageCollectionViewCell" customModule="CustomImagePicker" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="150" width="93" height="93"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -46,12 +46,12 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="93" height="93"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DwD-zc-20Q">
-                                                    <rect key="frame" x="68" y="5" width="20" height="20"/>
+                                                    <rect key="frame" x="63" y="5" width="25" height="25"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="20" id="HcM-Y0-ZmF"/>
-                                                        <constraint firstAttribute="width" constant="20" id="jDz-hX-lFZ"/>
+                                                        <constraint firstAttribute="height" constant="25" id="HcM-Y0-ZmF"/>
+                                                        <constraint firstAttribute="width" constant="25" id="jDz-hX-lFZ"/>
                                                     </constraints>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -65,6 +65,10 @@
                                             <constraint firstItem="DwD-zc-20Q" firstAttribute="top" secondItem="uYi-W7-TIj" secondAttribute="top" constant="5" id="jzU-x9-dh2"/>
                                             <constraint firstItem="PT7-LG-qQ5" firstAttribute="leading" secondItem="uYi-W7-TIj" secondAttribute="leading" id="oZg-xS-DSg"/>
                                         </constraints>
+                                        <connections>
+                                            <outlet property="imageView" destination="PT7-LG-qQ5" id="RwE-ro-EYU"/>
+                                            <outlet property="indexLabel" destination="DwD-zc-20Q" id="moF-Oi-qex"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
                                 <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Header" id="bhY-6z-GDH" customClass="AlbumPickerView" customModule="CustomImagePicker" customModuleProvider="target">

@@ -73,11 +73,17 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // setting up main image picker
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Image", for: indexPath)
-        // placeholder
-        // check if current cell was selected and change the background color of the cell accordingly
-        // light gray is yes    white is not
-        cell.backgroundColor = selectedCells.contains(indexPath) ? .lightGray : .white
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Image", for: indexPath) as! ImageCollectionViewCell
+        // check if current cell was selected
+        if selectedCells.contains(indexPath) {
+            // if yes set index of cell to be index of cells index path in the selected cell list
+            cell.index =  selectedCells.index(of: indexPath)
+        } else {
+            // else set cell index to -1 (explained in image collection view cell file)
+            cell.index = -1
+        }
+        // hide label is not selecting multiple and show if user is selecting multiple
+        cell.indexLabel.isHidden = !selectingMultiple
         return cell
     }
     
