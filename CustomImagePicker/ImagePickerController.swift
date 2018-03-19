@@ -63,17 +63,18 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Header", for: indexPath) as! AlbumPickerView
         // passing delegate methods to album picker view
         view.currentAlbumDelegate = self
-        view.albums = 7
+        view.albums = 7 // placeholder
         return view
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return 10 // placeholder
     }
     
     // setting up main image picker
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Image", for: indexPath)
+        // placeholder
         // check if current cell was selected and change the background color of the cell accordingly
         // light gray is yes    white is not
         cell.backgroundColor = selectedCells.contains(indexPath) ? .lightGray : .white

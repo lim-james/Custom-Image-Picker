@@ -17,7 +17,7 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
     var selectedAlbum: IndexPath! {
         return currentAlbumDelegate.getCurrent()
     }
-    var albums: Int!
+    var albums: Int! // placeholder
     
     // collection view to display categories
     @IBOutlet weak var albumCollectionView: UICollectionView!
@@ -30,7 +30,7 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return albums
+        return albums // placeholder
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
