@@ -26,6 +26,6 @@ extension ImagePickerController: CurrentAlbumDelegate {
         // trying to safely extract first image if present
         // if album is empty return empty image
         // else return first image
-        return (gallery[album]?.isEmpty)! ? UIImage() : gallery[album]!.first!
+        return (gallery[album]?.isEmpty)! ? UIImage() : getUIImage(from: gallery[album]!.first!)!
     }
 }

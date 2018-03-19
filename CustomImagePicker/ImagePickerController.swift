@@ -41,8 +41,22 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     @IBOutlet weak var previewView: UIImageView!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    let requestOptions = PHImageRequestOptions()
+    // for caching of images
+    let cachingImageManager = PHCachingImageManager()
+    
     // store gallery from device
-    var gallery: [PHCollection: [UIImage]] = [:]
+    var gallery: [PHCollection: [PHAsset]] = [:] {
+        willSet {
+            // stop caching before assigning
+            cachingImageManager.stopCachingImagesForAllAssets()
+        }
+        
+        didSet {
+            // start caching with options
+            cachingImageManager.startCachingImages(for: photos, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: self.requestOptions)
+        }
+    }
     
     // gets only albums from gallery
     var albums: [PHCollection] {
@@ -65,22 +79,22 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
             // when did set current album accordingly
             currentAlbum = albums[currentAlbumIndexPath.row]
             // and set current image to first image
-            currentImage = photos.first
+            currentPhoto = photos.first
         }
     }
     
     // gets only photos from the current album
-    var photos: [UIImage] {
+    var photos: [PHAsset] {
         return gallery[currentAlbum]!
     }
     
     var selectingMultiple = false // indicates whether use can select multiple images
-    var selectedImages: [UIImage] = [] // stores cells that have been selected
-    // stores the current cell user is on
-    var currentImage: UIImage! {
+    var selectedPhotos: [PHAsset] = [] // stores photo that have been selected
+    // stores the current photo user is on
+    var currentPhoto: PHAsset! {
         // when set refresh preview view
         didSet {
-            previewView.image = currentImage
+            previewView.image = getUIImage(from: currentPhoto)
         }
     }
     
@@ -93,6 +107,12 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // setting up preview view
         previewView.backgroundColor = .black // placeholder
         previewView.contentMode = .scaleAspectFill
+        
+        // setting options for request
+        requestOptions.resizeMode = .fast
+        requestOptions.version = .current
+        requestOptions.deliveryMode = .fastFormat
+        requestOptions.isSynchronous = true
         
         fetchSmartAlbums()
     }
@@ -159,21 +179,21 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     // fetch photos from user's library
     func fetchPhotos(from collection: PHAssetCollection) {
         let fetchOptions = PHFetchOptions()
-        fetchOptions.fetchLimit = 50
+        // set sorting options for fetch to get earlier images
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key:"creationDate", ascending: false)]
         // fetch all images as photo assets
         let allAssets = PHAsset.fetchAssets(in: collection, options: fetchOptions)
         // loop through all assets and add them to images array
         for i in 0..<allAssets.count {
-            // before appending to array, safely convert asset to image
-            if let image = getUIImage(from: allAssets[i]) {
+            autoreleasepool {
                 // append it to array under collection in albums dictionary
-                gallery[collection]!.append(image)
+                gallery[collection]!.append(allAssets[i])
             }
         }
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
             // set selected image to the first item
-            self.currentImage = self.photos.first
+            self.currentPhoto = self.photos.first
             // refresh view
             self.collectionView.reloadData()
         }
@@ -209,17 +229,17 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // checking if user disabled selecting multiple
         if !selectingMultiple {
             // if yes, check if there are selected cells
-            if selectedImages.isEmpty {
+            if selectedPhotos.isEmpty {
                 // if no set select cells to current cell
-                selectedImages = [currentImage]
+                selectedPhotos = [currentPhoto]
             } else {
                 // if yes remove all except the first item
                 // store the first selected cell
-                let first = selectedImages.first!
+                let first = selectedPhotos.first!
                 // remove all selected cells remove list
-                selectedImages.removeAll()
+                selectedPhotos.removeAll()
                 // adding back the first selected cell
-                selectedImages.append(first)
+                selectedPhotos.append(first)
             }
         }
         // refresh view
@@ -245,11 +265,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     // setting up main image picker
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Image", for: indexPath) as! ImageCollectionViewCell
-        // check if current cell was selected
+        // check if current asset was selected
         let photo = photos[indexPath.row]
-        if selectedImages.contains(photos[indexPath.row]) {
-            // if yes set index of cell to be index of cells index path in the selected cell list
-            cell.index = selectedImages.index(of: photo)
+        if selectedPhotos.contains(photos[indexPath.row]) {
+            // if yes set index of cell to be index of photo index path in the selected cell list
+            cell.index = selectedPhotos.index(of: photo)
         } else {
             // else set cell index to -1 (explained in image collection view cell file)
             cell.index = -1
@@ -257,52 +277,52 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // hide label is not selecting multiple and show if user is selecting multiple
         cell.indexLabel.isHidden = !selectingMultiple
         
-        // check if current cell was the cell user is currently selecting
-        if photo == currentImage {
+        // check if current photo was the cell user is currently selecting
+        if photo == currentPhoto {
             // if yes, highlight cell
             cell.alpha = 0.7
         }
         
         // assign image at for this cell to image view
-        cell.imageView.image = photos[indexPath.row]
+        cell.imageView.image = getUIImage(from: photos[indexPath.row])
         return cell
     }
     
     // handles event when cell is selected
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // store image at selected index path
-        var selectedImage = photos[indexPath.row]
+        var selectedPhoto = photos[indexPath.row]
         
         // check if the user enabled multiple selection to adjust action accordingly
         if selectingMultiple {
-            // check if this image was previously selected
-            if selectedImages.contains(selectedImage) {
-                // if yes, check if this image is already selected
+            // check if this photo was previously selected
+            if selectedPhotos.contains(selectedPhoto) {
+                // if yes, check if this photo is already selected
                 // because user tap once to preview and taps a second time to deselect
-                if currentImage == selectedImage {
-                    // if yes too, remove selected image from seleected list
-                    selectedImages.remove(at: selectedImages.index(of: selectedImage)!)
-                    // go through selected images array
-                    for image in selectedImages {
-                        // check if current image is in the same album
-                        if photos.contains(image) {
-                            // if yes, change selected image to this image
+                if currentPhoto == selectedPhoto {
+                    // if yes too, remove selected photo from seleected list
+                    selectedPhotos.remove(at: selectedPhotos.index(of: selectedPhoto)!)
+                    // go through selected photo array
+                    for photo in selectedPhotos {
+                        // check if current photo is in the same album
+                        if photos.contains(photo) {
+                            // if yes, change selected image to this photo
                             // else stick don't change
-                            selectedImage = image
+                            selectedPhoto = photo
                         }
                     }
                 }
             } else {
-                // if no, add selected image to seleected list
-                selectedImages.append(selectedImage)
+                // if no, add selected photo to seleected list
+                selectedPhotos.append(selectedPhoto)
             }
         } else {
-            // set current selected image to selected list
-            selectedImages = [selectedImage]
+            // set current selected photo to selected list
+            selectedPhotos = [selectedPhoto]
         }
         
-        // set the current image the user is on to select image index path
-        currentImage = selectedImage
+        // set the current photo the user is on to select photo index path
+        currentPhoto = selectedPhoto
         
         // refresh view
         collectionView.reloadData()
