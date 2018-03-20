@@ -8,8 +8,11 @@
 
 import UIKit
 import Photos
+import CoreGraphics
 
 class ImagePickerController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    var counter = Counter() // for debugging
     
     // getting view width
     var width: CGFloat! {
@@ -60,13 +63,17 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // gets only albums from gallery
     var albums: [PHCollection] {
-        return Array(gallery.keys)
+        // filter out empty albums
+        return Array(gallery.keys).filter({ (album) -> Bool in
+            return gallery[album]!.count != 0
+        })
     }
     
     // stores the current selected album
     var currentAlbum: PHCollection! {
-        // when set refresh collecitonview
+        // when set refresh collecitonview in main thread7
         didSet {
+            title = currentAlbum.localizedTitle
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
@@ -112,7 +119,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         requestOptions.resizeMode = .fast
         requestOptions.version = .current
         requestOptions.deliveryMode = .fastFormat
-        requestOptions.isSynchronous = true
+        requestOptions.isSynchronous = false
         
         fetchSmartAlbums()
     }
@@ -136,6 +143,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                     if allSmartAlbums[i].estimatedAssetCount != 0 {
                         // if not empty, create key for albums dictionary
                         self.gallery[allSmartAlbums[i]] = []
+                        // left out for now
                         // fetch photo for this album
                         self.fetchPhotos(from: allSmartAlbums[i])
                     }
@@ -186,7 +194,9 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // loop through all assets and add them to images array
         for i in 0..<allAssets.count {
             // append it to array under collection in albums dictionary
-            gallery[collection]!.append(allAssets[i])
+            if !photos.contains(allAssets[i]) {
+                gallery[collection]!.append(allAssets[i])
+            }
         }
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
@@ -197,18 +207,41 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
     }
     
-    // convert photo asset to uiimage
+    // convert photo asset to full res UIImage
     func getUIImage(from asset: PHAsset) -> UIImage? {
         var img: UIImage?
-        let manager = PHImageManager.default()
         let options = PHImageRequestOptions()
-        options.version = .original
+        options.deliveryMode = .highQualityFormat
+        options.version = .current
+        options.resizeMode = .exact
         options.isSynchronous = true
-        manager.requestImageData(for: asset, options: options) { data, _, _, _ in
+        
+        // get image data from aset
+        PHImageManager().requestImageData(for: asset, options: options) { (data, _, _, _) in
             if let data = data {
                 img = UIImage(data: data)
             }
         }
+        
+        // resize image before showing
+        return img
+    }
+    
+    // convert photo asset to UIImage with specified size
+    func getUIImage(from asset: PHAsset, with size: CGSize) -> UIImage? {
+        var img: UIImage?
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .opportunistic
+        options.version = .current
+        options.resizeMode = .exact
+        options.isSynchronous = true
+        
+        // get image from aset
+        PHImageManager().requestImage(for: asset, targetSize: size, contentMode: .aspectFit, options: options) { (image, _) in
+            img = image
+        }
+        
+        // resize image before showing
         return img
     }
     
@@ -281,8 +314,12 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
             cell.alpha = 0.7
         }
         
+        // rasterize
+        cell.layer.shouldRasterize = true
+        cell.layer.rasterizationScale = UIScreen.main.scale
+        
         // assign image at for this cell to image view
-        cell.imageView.image = getUIImage(from: photos[indexPath.row])
+        cell.imageView.image = self.getUIImage(from: self.photos[indexPath.row], with: cell.frame.size)
         return cell
     }
     
@@ -323,7 +360,9 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         currentPhoto = selectedPhoto
         
         // refresh view
-        collectionView.reloadData()
+        DispatchQueue.main.async {
+            collectionView.reloadData()
+        }
     }
     
     // dynamically change cell size based on device size

@@ -17,6 +17,8 @@
 		742F99F5205F658A0074F73C /* ImagePickerProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */; };
 		742F99F7205F661F0074F73C /* CurrentAlbumHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99F6205F661F0074F73C /* CurrentAlbumHelper.swift */; };
 		742F99FB205F6A4E0074F73C /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F99FA205F6A4E0074F73C /* ImageCollectionViewCell.swift */; };
+		74DFCC0A2060A901007256A2 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DFCC092060A901007256A2 /* UIImageExtension.swift */; };
+		74DFCC0C2060B149007256A2 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DFCC0B2060B149007256A2 /* Counter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerProtocols.swift; sourceTree = "<group>"; };
 		742F99F6205F661F0074F73C /* CurrentAlbumHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentAlbumHelper.swift; sourceTree = "<group>"; };
 		742F99FA205F6A4E0074F73C /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
+		74DFCC092060A901007256A2 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
+		74DFCC0B2060B149007256A2 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +69,8 @@
 			isa = PBXGroup;
 			children = (
 				742F99DE205F5B460074F73C /* AppDelegate.swift */,
+				74DFCC0B2060B149007256A2 /* Counter.swift */,
+				74DFCC092060A901007256A2 /* UIImageExtension.swift */,
 				742F99F4205F658A0074F73C /* ImagePickerProtocols.swift */,
 				742F99E0205F5B460074F73C /* ImagePickerController.swift */,
 				742F99FA205F6A4E0074F73C /* ImageCollectionViewCell.swift */,
@@ -164,8 +170,10 @@
 				742F99E1205F5B460074F73C /* ImagePickerController.swift in Sources */,
 				742F99F1205F611F0074F73C /* AlbumPickerView.swift in Sources */,
 				742F99FB205F6A4E0074F73C /* ImageCollectionViewCell.swift in Sources */,
+				74DFCC0C2060B149007256A2 /* Counter.swift in Sources */,
 				742F99F5205F658A0074F73C /* ImagePickerProtocols.swift in Sources */,
 				742F99DF205F5B460074F73C /* AppDelegate.swift in Sources */,
+				74DFCC0A2060A901007256A2 /* UIImageExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

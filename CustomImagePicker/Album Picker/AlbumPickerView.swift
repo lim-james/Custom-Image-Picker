@@ -46,7 +46,10 @@ class AlbumPickerView: UICollectionReusableView, UICollectionViewDelegate, UICol
         let cell = albumCollectionView.dequeueReusableCell(withReuseIdentifier: "Album", for: indexPath) as! AlbumCollectionViewCell
         // check if current cell was selected and assigns an alpha value to the cell.
         // 1 for selected   0.5 for not selected
-        cell.alpha = indexPath == currentAlbumDelegate.getCurrent() ? 1 : 0.5
+        cell.alpha = 0.5
+        UIView.animate(withDuration: 0.2) {
+            cell.alpha = indexPath == self.currentAlbumDelegate.getCurrent() ? 1 : 0.5
+        }
         // setting album of cell
         cell.album = albums[indexPath.row]
         // giving cell a thumbnail image
