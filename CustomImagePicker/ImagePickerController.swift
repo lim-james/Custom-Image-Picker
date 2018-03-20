@@ -87,6 +87,11 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         didSet {
             // when did set current album accordingly
             currentAlbum = albums[currentAlbumIndexPath.row]
+            // check if photos has at least more than one
+            if photos.count <= 1 {
+                // if no, fetch photos from current album
+                fetchPhotos(from: currentAlbum as! PHAssetCollection)
+            }
             // and set current image to first image
             currentPhoto = photos.first
         }
@@ -146,14 +151,22 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                     if allSmartAlbums[i].estimatedAssetCount != 0 {
                         // if not empty, create key for albums dictionary
                         self.gallery[allSmartAlbums[i]] = []
-                        // fetch photo for this album
-                        self.fetchPhotos(from: allSmartAlbums[i])
+                        // get thumbnail for item
+                        self.fetchThumbnail(of: allSmartAlbums[i])
                     }
+                }
+                // start fetching others
+                for album in self.albums {
+                    // fetch from album
+                    self.fetchPhotos(from: album as! PHAssetCollection)
                 }
                 // collection view can only be reloaded on main thread
                 DispatchQueue.main.async {
+                    // fetch assets for current album
+                    self.fetchPhotos(from: self.currentAlbum as! PHAssetCollection)
                     // refresh view
                     self.collectionView.reloadData()
+                    
                 }
 //                self.fetchAlbums() left out for now
             case .denied, .restricted:
@@ -186,8 +199,29 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
     }
     
+    func fetchThumbnail(of album: PHAssetCollection) {
+        let fetchOptions = PHFetchOptions()
+        // set sorting options for fetch to get earlier images
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key:"creationDate", ascending: false)]
+        // fetch only first image as photo assets
+        fetchOptions.fetchLimit = 1
+        let photo = PHAsset.fetchAssets(in: album, options: fetchOptions)
+        
+        // trying to safely extract first image if present
+        // check if photo present
+        if photo.count != 0 {
+            // if yes, check if photo has already been added
+            if !photos.contains(photo.firstObject!) {
+                // if no, add to album
+                gallery[album]?.append(photo.firstObject!)
+            }
+        }
+    }
+    
     // fetch photos from user's library
     func fetchPhotos(from collection: PHAssetCollection) {
+        // empty array first
+        gallery[collection]?.removeAll()
         let fetchOptions = PHFetchOptions()
         // set sorting options for fetch to get earlier images
         fetchOptions.sortDescriptors = [NSSortDescriptor(key:"creationDate", ascending: false)]
@@ -203,7 +237,6 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
             // set selected image to the first item
-            self.setCurrent(indexPath: IndexPath(row: 0, section: 0))
             self.currentPhoto = self.photos.first
             // refresh view
             self.collectionView.reloadData()

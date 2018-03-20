@@ -23,16 +23,9 @@ extension ImagePickerController: CurrentAlbumDelegate {
     
     // return first image of album
     func getThumbnail(of album: PHCollection) -> UIImage {
-        let fetchOptions = PHFetchOptions()
-        // set sorting options for fetch to get earlier images
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key:"creationDate", ascending: false)]
-        fetchOptions.fetchLimit = 1
-        // fetch all images as photo assets
-        let photo = PHAsset.fetchAssets(in: album as! PHAssetCollection, options: fetchOptions)
-        
         // trying to safely extract first image if present
         // if album is empty return empty image
         // else return first image
-        return photo.count == 0 ? UIImage() : getUIImage(from: photo.firstObject!)!
+        return (gallery[album]?.isEmpty)! ? UIImage() : getUIImage(from: gallery[album]!.first!)!
     }
 }
