@@ -66,6 +66,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // filter out empty albums
         return Array(gallery.keys).filter({ (album) -> Bool in
             return gallery[album]!.count != 0
+        }).sorted(by: { (before, after) -> Bool in
+            return (gallery[before]?.count)! > (gallery[after]?.count)!
         })
     }
     
@@ -135,6 +137,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 let fetchOptions = PHFetchOptions()
                 // fetch all smart albums
                 let allSmartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: fetchOptions)
+                print(allSmartAlbums.count)
                 // assign current album to first album fetched
                 self.currentAlbum = allSmartAlbums.firstObject
                 // loop through all smart albums and add them to smart albums array
@@ -143,7 +146,6 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                     if allSmartAlbums[i].estimatedAssetCount != 0 {
                         // if not empty, create key for albums dictionary
                         self.gallery[allSmartAlbums[i]] = []
-                        // left out for now
                         // fetch photo for this album
                         self.fetchPhotos(from: allSmartAlbums[i])
                     }
