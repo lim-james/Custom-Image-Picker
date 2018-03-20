@@ -69,6 +69,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }).sorted(by: { (before, after) -> Bool in
             return (gallery[before]?.count)! > (gallery[after]?.count)!
         })
+ 
     }
     
     // stores the current selected album
@@ -142,7 +143,6 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 let fetchOptions = PHFetchOptions()
                 // fetch all smart albums
                 let allSmartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: fetchOptions)
-                print(allSmartAlbums.count)
                 // assign current album to first album fetched
                 self.currentAlbum = allSmartAlbums.firstObject
                 // loop through all smart albums and add them to smart albums array
@@ -162,8 +162,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 }
                 // collection view can only be reloaded on main thread
                 DispatchQueue.main.async {
-                    // fetch assets for current album
-                    self.fetchPhotos(from: self.currentAlbum as! PHAssetCollection)
+                    // set current to first (which is camera roll)
+                    self.setCurrent(indexPath: IndexPath(row: 0, section: 0))
                     // refresh view
                     self.collectionView.reloadData()
                     
@@ -267,12 +267,12 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     func getUIImage(from asset: PHAsset, with size: CGSize) -> UIImage? {
         var img: UIImage?
         let options = PHImageRequestOptions()
-        options.deliveryMode = .opportunistic
+        options.deliveryMode = .highQualityFormat
         options.version = .current
         options.resizeMode = .exact
         options.isSynchronous = true
         
-        // get image from aset
+        // get image from asset
         PHImageManager().requestImage(for: asset, targetSize: size, contentMode: .aspectFit, options: options) { (image, _) in
             img = image
         }
@@ -347,7 +347,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // check if current photo was the cell user is currently selecting
         if photo == currentPhoto {
             // if yes, highlight cell
-            cell.alpha = 0.7
+            cell.alpha = 0.5
         }
         
         // rasterize
