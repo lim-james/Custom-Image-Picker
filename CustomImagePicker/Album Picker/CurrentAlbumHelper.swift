@@ -18,7 +18,7 @@ extension ImagePickerController: CurrentAlbumDelegate {
     
     // return value of current album
     func getCurrent() -> IndexPath {
-        return currentAlbumIndexPath
+        return IndexPath(row: albums.index(of: currentAlbum)!, section: 0)
     }
     
     // return first image of album

@@ -101,7 +101,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     var currentPhoto: PHAsset! {
         // when set refresh preview view
         didSet {
-            previewView.image = getUIImage(from: currentPhoto)
+            previewView.image = currentPhoto != nil ? getUIImage(from: currentPhoto) : UIImage()
         }
     }
     
@@ -112,7 +112,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         collectionView.dataSource = self
         
         // setting up preview view
-        previewView.backgroundColor = .black // placeholder
+        previewView.backgroundColor = .black
         previewView.contentMode = .scaleAspectFill
         
         // setting options for request
@@ -201,6 +201,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
             // set selected image to the first item
+            self.setCurrent(indexPath: IndexPath(row: 0, section: 0))
             self.currentPhoto = self.photos.first
             // refresh view
             self.collectionView.reloadData()
