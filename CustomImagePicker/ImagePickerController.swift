@@ -12,8 +12,6 @@ import CoreGraphics
 
 class ImagePickerController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    var counter = Counter() // for debugging
-    
     // getting view width
     var width: CGFloat! {
         return view.frame.width
@@ -69,16 +67,18 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }).sorted(by: { (before, after) -> Bool in
             return (gallery[before]?.count)! > (gallery[after]?.count)!
         })
- 
+        
     }
     
     // stores the current selected album
     var currentAlbum: PHCollection! {
         // when set refresh collecitonview in main thread7
         didSet {
-            title = currentAlbum.localizedTitle
             DispatchQueue.main.async {
-                self.collectionView.reloadData()
+                self.title = self.currentAlbum.localizedTitle
+                if self.collectionView != nil {
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -100,7 +100,8 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // gets only photos from the current album
     var photos: [PHAsset] {
-        return gallery[currentAlbum]!
+        // check current album has been initialised
+        return currentAlbum != nil ? gallery[currentAlbum]! : []
     }
     
     var selectingMultiple = false // indicates whether use can select multiple images
@@ -109,7 +110,10 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     var currentPhoto: PHAsset! {
         // when set refresh preview view
         didSet {
-            previewView.image = currentPhoto != nil ? getUIImage(from: currentPhoto) : UIImage()
+            // check whether preview view has been initialised
+            if previewView != nil {
+                previewView.image = currentPhoto != nil ? getUIImage(from: currentPhoto) : UIImage()
+            }
         }
     }
     
@@ -123,13 +127,18 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         previewView.backgroundColor = .black
         previewView.contentMode = .scaleAspectFill
         
+        // attempting to call these before hand
+        setup()
+        fetchSmartAlbums()
+    }
+    
+    // basic set up function
+    func setup() {
         // setting options for request
         requestOptions.resizeMode = .fast
         requestOptions.version = .current
         requestOptions.deliveryMode = .fastFormat
         requestOptions.isSynchronous = false
-        
-        fetchSmartAlbums()
     }
     
     // fetch smart albums from user's library
@@ -164,11 +173,13 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
                 DispatchQueue.main.async {
                     // set current to first (which is camera roll)
                     self.setCurrent(indexPath: IndexPath(row: 0, section: 0))
-                    // refresh view
-                    self.collectionView.reloadData()
+                    // refresh view if collection view has been initialized
+                    if self.collectionView != nil {
+                        self.collectionView.reloadData()
+                    }
                     
                 }
-//                self.fetchAlbums() left out for now
+            //                self.fetchAlbums() left out for now
             case .denied, .restricted:
                 print("Not allowed")
             case .notDetermined:
@@ -194,8 +205,10 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // collection view can only be reloaded on main thread
         DispatchQueue.main.async {
-            // refresh view
-            self.collectionView.reloadData()
+            // refresh view if collection view has been initialized
+            if self.collectionView != nil {
+                self.collectionView.reloadData()
+            }
         }
     }
     
@@ -238,8 +251,10 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         DispatchQueue.main.async {
             // set selected image to the first item
             self.currentPhoto = self.photos.first
-            // refresh view
-            self.collectionView.reloadData()
+            // refresh view if collection view has been initialized
+            if self.collectionView != nil {
+                self.collectionView.reloadData()
+            }
         }
     }
     
@@ -283,6 +298,7 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
     
     // closes this controller
     @IBAction func cancelAction(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
     }
     
     // closes this controller and sends images to destination controller
@@ -415,3 +431,4 @@ class ImagePickerController: UIViewController, UICollectionViewDelegate, UIColle
         return cellSpacing/3 // just to keep things equally spaced
     }
 }
+

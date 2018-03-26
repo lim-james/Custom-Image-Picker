@@ -23,7 +23,6 @@ class AlbumCollectionViewCell: UICollectionViewCell {
     // initial set up
     override func awakeFromNib() {
         super.awakeFromNib()
-        imageView.backgroundColor = .black // placeholder
         // making image view a rounded rectangle
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true

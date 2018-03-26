@@ -50,8 +50,6 @@ class ImageCollectionViewCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = .black // placeholder
-        
         imageView.contentMode = .scaleAspectFill
     }
 }
